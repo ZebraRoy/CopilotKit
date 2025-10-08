@@ -587,10 +587,9 @@ function entryPointsToFunctionCallHandler(actions: FrontendAction<any>[]): Funct
       await new Promise<void>((resolve, reject) => {
         flushSync(async () => {
           try {
-            // Always pass args and optional meta with executionId. For no-args handlers,
-            // extra parameters are ignored at runtime and remain backward compatible.
-            // Using `as any` to avoid complex conditional typing here.
-            result = await (action.handler as any)?.(args, { executionId });
+            // Prefer executionId sourced from the action render (HITL), otherwise from the backend callback meta.
+            const effectiveExecutionId = (action as any)._executionId || executionId;
+            result = await (action.handler as any)?.(args, { executionId: effectiveExecutionId });
             resolve();
           } catch (error) {
             reject(error);

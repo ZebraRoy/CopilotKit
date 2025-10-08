@@ -1080,7 +1080,6 @@ async function executeAction({
     messages: currentMessagesForHandler,
     name: message.name,
     args: message.arguments,
-    executionId: message.id,
   });
 
   // For HITL actions, call flushSync immediately after their handler has set up the promise
