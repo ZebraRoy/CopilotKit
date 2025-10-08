@@ -228,24 +228,24 @@ export function useCopilotAction<const T extends Parameter[] | [] = []>(
         // If conditions met, status remains 'executing'
       }
       // Create type safe waitProps based on whether T extends empty array or not
+      const isActiveExecutingInstance =
+        status === "executing" &&
+        renderAndWaitRef.current &&
+        renderAndWaitRef.current.messageId === currentRenderMessageId;
+
+      // Expose the current execution id on the action so the provider can pass it to the handler meta
+      if (isActiveExecutingInstance && currentRenderMessageId) {
+        (action as any)._executionId = currentRenderMessageId;
+      }
+
       const waitProps = {
         status,
         args: props.args,
         result: props.result,
         // handler and respond should only be provided if this is the truly active instance
         // and its promise infrastructure is ready.
-        handler:
-          status === "executing" &&
-          renderAndWaitRef.current &&
-          renderAndWaitRef.current.messageId === currentRenderMessageId
-            ? renderAndWaitRef.current!.resolve
-            : undefined,
-        respond:
-          status === "executing" &&
-          renderAndWaitRef.current &&
-          renderAndWaitRef.current.messageId === currentRenderMessageId
-            ? renderAndWaitRef.current!.resolve
-            : undefined,
+        handler: isActiveExecutingInstance ? renderAndWaitRef.current!.resolve : undefined,
+        respond: isActiveExecutingInstance ? renderAndWaitRef.current!.resolve : undefined,
       } as T extends [] ? ActionRenderPropsNoArgsWait<T> : ActionRenderPropsWait<T>;
 
       // Type guard to check if renderAndWait is for no args case

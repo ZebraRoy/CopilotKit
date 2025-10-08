@@ -71,8 +71,8 @@ This hooks enables you to dynamically generate UI elements and render them in th
       The name of the action.
     </PropertyReference>
 
-    <PropertyReference name="handler" type="(args) => Promise<any>" required>
-      The handler of the action.
+    <PropertyReference name="handler" type="(args, meta?) => Promise<any>" required>
+      The handler of the action. An optional <code>meta</code> object is provided containing <code>executionId</code> to help you dedupe executions across re-renders.
     </PropertyReference>
 
     <PropertyReference name="description" type="string">

@@ -30,6 +30,8 @@ export interface FunctionCallHandlerArguments {
   messages: any[];
   name: string;
   args: any;
+  /** Optional execution identifier for this function/action call, useful for deduping */
+  executionId?: string;
 }
 
 export type FunctionCallHandler = (args: FunctionCallHandlerArguments) => Promise<any>;
