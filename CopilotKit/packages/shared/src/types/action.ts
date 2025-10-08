@@ -78,13 +78,20 @@ export type MappedParameterTypes<T extends Parameter[] | [] = []> = T extends []
         | BaseParameterType<P>;
     };
 
+export type ActionHandlerMeta = {
+  /** Execution identifier for the current action call */
+  executionId?: string;
+};
+
 export type Action<T extends Parameter[] | [] = []> = {
   name: string;
   description?: string;
   parameters?: T;
   handler?: T extends []
-    ? () => any | Promise<any>
-    : (args: MappedParameterTypes<T>) => any | Promise<any>;
+    ? // No-args handlers remain callable without parameters for backward compatibility,
+      // but may optionally receive a metadata object containing the executionId.
+      ((meta?: ActionHandlerMeta) => any | Promise<any>) | (() => any | Promise<any>)
+    : (args: MappedParameterTypes<T>, meta?: ActionHandlerMeta) => any | Promise<any>;
 };
 
 // This is the original "ceiling is being raised" version of MappedParameterTypes.

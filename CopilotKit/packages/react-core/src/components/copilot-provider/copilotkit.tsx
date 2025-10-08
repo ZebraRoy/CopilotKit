@@ -575,7 +575,7 @@ export function CopilotKitInternal(cpkProps: CopilotKitProps) {
 export const defaultCopilotContextCategories = ["global"];
 
 function entryPointsToFunctionCallHandler(actions: FrontendAction<any>[]): FunctionCallHandler {
-  return async ({ name, args }: { name: string; args: Record<string, any> }) => {
+  return async ({ name, args, executionId }: { name: string; args: Record<string, any>; executionId?: string }) => {
     let actionsByFunctionName: Record<string, FrontendAction<any>> = {};
     for (let action of actions) {
       actionsByFunctionName[action.name] = action;
@@ -587,7 +587,10 @@ function entryPointsToFunctionCallHandler(actions: FrontendAction<any>[]): Funct
       await new Promise<void>((resolve, reject) => {
         flushSync(async () => {
           try {
-            result = await action.handler?.(args);
+            // Always pass args and optional meta with executionId. For no-args handlers,
+            // extra parameters are ignored at runtime and remain backward compatible.
+            // Using `as any` to avoid complex conditional typing here.
+            result = await (action.handler as any)?.(args, { executionId });
             resolve();
           } catch (error) {
             reject(error);

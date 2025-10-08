@@ -492,7 +492,8 @@ async function executeAction(
   } else {
     // call the function
     try {
-      const result = await action.handler?.(args);
+      // Pass the executionId so handlers can dedupe across re-renders if needed
+      const result = await (action.handler as any)?.(args, { executionId: actionExecutionId });
       await streamLangChainResponse({
         result,
         eventStream$,
